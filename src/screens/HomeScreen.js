@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Feather } from '@expo/vector-icons';
-import { fetchDestinations, setSelectedCategory } from '../store/slices/destinationsSlice';
+import { fetchDestinations, setSelectedCategory, setSelectedDistrict } from '../store/slices/destinationsSlice';
 import { loadFavorites } from '../store/slices/favoritesSlice';
 import Colors from '../constants/colors';
 import DestinationCard from '../components/DestinationCard';
@@ -20,23 +20,16 @@ const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
   
-  const {
-    destinations,
-    categories,
-    selectedCategory,
-    loading,
-    user,
-    isDarkMode,
-    favorites,
-  } = useSelector((state) => ({
-    destinations: state.destinations.destinations,
-    categories: state.destinations.categories,
-    selectedCategory: state.destinations.selectedCategory,
-    loading: state.destinations.loading,
-    user: state.auth.user,
-    isDarkMode: state.theme.isDarkMode,
-    favorites: state.favorites.favorites,
-  }));
+  // Separate selectors to avoid object creation on every render
+  const destinations = useSelector((state) => state.destinations.destinations);
+  const categories = useSelector((state) => state.destinations.categories);
+  const districts = useSelector((state) => state.destinations.districts);
+  const selectedCategory = useSelector((state) => state.destinations.selectedCategory);
+  const selectedDistrict = useSelector((state) => state.destinations.selectedDistrict);
+  const loading = useSelector((state) => state.destinations.loading);
+  const user = useSelector((state) => state.auth.user);
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
+  const favorites = useSelector((state) => state.favorites.favorites);
 
   useEffect(() => {
     dispatch(fetchDestinations());
@@ -45,9 +38,10 @@ const HomeScreen = ({ navigation }) => {
 
   const filteredDestinations = destinations.filter((destination) => {
     const matchesCategory = selectedCategory === 'All' || destination.category === selectedCategory;
+    const matchesDistrict = selectedDistrict === 'All Districts' || destination.district === selectedDistrict;
     const matchesSearch = destination.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          destination.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    return matchesCategory && matchesDistrict && matchesSearch;
   });
 
   const renderCategoryItem = ({ item }) => (
@@ -62,6 +56,25 @@ const HomeScreen = ({ navigation }) => {
         style={[
           styles.categoryButtonText,
           selectedCategory === item && styles.selectedCategoryButtonText,
+        ]}
+      >
+        {item}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  const renderDistrictItem = ({ item }) => (
+    <TouchableOpacity
+      style={[
+        styles.districtButton,
+        selectedDistrict === item && styles.selectedDistrictButton,
+      ]}
+      onPress={() => dispatch(setSelectedDistrict(item))}
+    >
+      <Text
+        style={[
+          styles.districtButtonText,
+          selectedDistrict === item && styles.selectedDistrictButtonText,
         ]}
       >
         {item}
@@ -122,6 +135,19 @@ const HomeScreen = ({ navigation }) => {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesList}
+        />
+      </View>
+
+      {/* Districts */}
+      <View style={styles.districtsContainer}>
+        <Text style={styles.sectionLabel}>Filter by District:</Text>
+        <FlatList
+          data={districts}
+          renderItem={renderDistrictItem}
+          keyExtractor={(item) => item}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.districtsList}
         />
       </View>
 
@@ -234,6 +260,40 @@ const getStyles = (isDarkMode) => StyleSheet.create({
   selectedCategoryButtonText: {
     color: Colors.white,
     fontWeight: 'bold',
+  },
+  districtsContainer: {
+    paddingBottom: 15,
+  },
+  sectionLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: isDarkMode ? Colors.darkText : Colors.darkGray,
+    marginBottom: 10,
+    paddingHorizontal: 20,
+  },
+  districtsList: {
+    paddingHorizontal: 20,
+  },
+  districtButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: isDarkMode ? Colors.darkBackground : Colors.lightGray,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: isDarkMode ? Colors.darkCard : Colors.lightGray,
+  },
+  selectedDistrictButton: {
+    backgroundColor: Colors.goldenYellow,
+    borderColor: Colors.goldenYellow,
+  },
+  districtButtonText: {
+    fontSize: 13,
+    color: isDarkMode ? Colors.darkSecondaryText : Colors.mediumGray,
+  },
+  selectedDistrictButtonText: {
+    color: Colors.darkGray,
+    fontWeight: '600',
   },
   destinationsContainer: {
     flex: 1,

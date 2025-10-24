@@ -17,9 +17,7 @@ const cardWidth = (width - 50) / 2;
 
 const DestinationCard = ({ destination, onPress, isFavorite }) => {
   const dispatch = useDispatch();
-  const { isDarkMode } = useSelector((state) => ({
-    isDarkMode: state.theme.isDarkMode,
-  }));
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
 
   const handleToggleFavorite = () => {
     dispatch(toggleFavorite(destination.id));
@@ -68,6 +66,13 @@ const DestinationCard = ({ destination, onPress, isFavorite }) => {
         <Text style={styles.title} numberOfLines={2}>
           {destination.title}
         </Text>
+        
+        {destination.district && (
+          <View style={styles.locationContainer}>
+            <Feather name="map-pin" size={12} color={Colors.deepSaffron} />
+            <Text style={styles.districtText}>{destination.district}</Text>
+          </View>
+        )}
         
         <Text style={styles.category}>{destination.category}</Text>
         
@@ -128,6 +133,17 @@ const getStyles = (isDarkMode) => StyleSheet.create({
     color: isDarkMode ? Colors.darkText : Colors.darkGray,
     marginBottom: 4,
     lineHeight: 20,
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  districtText: {
+    fontSize: 11,
+    color: isDarkMode ? Colors.darkSecondaryText : Colors.mediumGray,
+    marginLeft: 3,
+    fontWeight: '500',
   },
   category: {
     fontSize: 12,

@@ -12,9 +12,7 @@ import { Feather } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 
 const LanguageScreen = ({ navigation }) => {
-  const { isDarkMode } = useSelector((state) => ({
-    isDarkMode: state.theme.isDarkMode,
-  }));
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
 
   const [selectedLanguage, setSelectedLanguage] = useState('en');
 

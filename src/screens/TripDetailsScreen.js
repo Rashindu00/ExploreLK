@@ -15,11 +15,9 @@ import { addDestinationToTripAsync, removeDestinationFromTripAsync } from '../st
 const TripDetailsScreen = ({ route, navigation }) => {
   const { trip } = route.params;
   const dispatch = useDispatch();
-  const { destinations, isDarkMode, trips } = useSelector((state) => ({
-    destinations: state.destinations.destinations,
-    isDarkMode: state.theme.isDarkMode,
-    trips: state.trips.trips,
-  }));
+  const destinations = useSelector((state) => state.destinations.destinations);
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
+  const trips = useSelector((state) => state.trips.trips);
 
   // Get the latest trip data from Redux store
   const currentTrip = trips.find(t => t.id === trip.id) || trip;
@@ -93,7 +91,7 @@ const TripDetailsScreen = ({ route, navigation }) => {
         </TouchableOpacity>
         <Text style={styles.title}>Trip Details</Text>
         <TouchableOpacity onPress={() => {
-          Alert.alert('Edit Trip', 'Edit trip feature coming soon!');
+          navigation.navigate('EditTrip', { trip: currentTrip });
         }}>
           <Feather name="edit-2" size={24} color={Colors.deepSaffron} />
         </TouchableOpacity>

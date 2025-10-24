@@ -19,11 +19,9 @@ import Colors from '../constants/colors';
 
 const LoginScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { loading, error, isDarkMode } = useSelector((state) => ({
-    loading: state.auth.loading,
-    error: state.auth.error,
-    isDarkMode: state.theme.isDarkMode,
-  }));
+  const loading = useSelector((state) => state.auth.loading);
+  const error = useSelector((state) => state.auth.error);
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
   const [showPassword, setShowPassword] = useState(false);
 
   const {

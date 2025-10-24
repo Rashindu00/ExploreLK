@@ -7,24 +7,25 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
+  Image,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Feather } from '@expo/vector-icons';
 import { useForm, Controller } from 'react-hook-form';
+import * as ImagePicker from 'expo-image-picker';
 import Colors from '../constants/colors';
 import { saveReview } from '../store/slices/reviewsSlice';
 
 const ReviewsScreen = ({ route, navigation }) => {
   const { destination } = route.params;
   const dispatch = useDispatch();
-  const { reviews, isDarkMode, user } = useSelector((state) => ({
-    reviews: state.reviews.reviews[destination.id] || [],
-    isDarkMode: state.theme.isDarkMode,
-    user: state.auth.user,
-  }));
+  const reviews = useSelector((state) => state.reviews.reviews[destination.id] || []);
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
+  const user = useSelector((state) => state.auth.user);
 
   const [rating, setRating] = useState(0);
   const [showForm, setShowForm] = useState(false);
+  const [reviewImages, setReviewImages] = useState([]);
 
   const {
     control,
@@ -48,15 +49,48 @@ const ReviewsScreen = ({ route, navigation }) => {
       await dispatch(saveReview(destination.id, {
         ...data,
         rating,
+        images: reviewImages,
       }));
 
       Alert.alert('Success', 'Review submitted successfully!');
       reset();
       setRating(0);
+      setReviewImages([]);
       setShowForm(false);
     } catch (error) {
       Alert.alert('Error', 'Failed to submit review. Please try again.');
     }
+  };
+
+  const pickImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please grant camera roll permissions to add photos.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsMultipleSelection: true,
+        quality: 0.8,
+        aspect: [4, 3],
+      });
+
+      if (!result.canceled) {
+        // Add selected images (max 5)
+        const newImages = result.assets.map(asset => asset.uri);
+        const totalImages = [...reviewImages, ...newImages].slice(0, 5);
+        setReviewImages(totalImages);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to pick image');
+    }
+  };
+
+  const removeImage = (index) => {
+    setReviewImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const averageRating = reviews.length > 0
@@ -100,6 +134,23 @@ const ReviewsScreen = ({ route, navigation }) => {
       </View>
       {review.title && <Text style={styles.reviewTitle}>{review.title}</Text>}
       <Text style={styles.reviewComment}>{review.comment}</Text>
+      
+      {/* Review Images */}
+      {review.images && review.images.length > 0 && (
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          style={styles.reviewImagesContainer}
+        >
+          {review.images.map((imageUri, index) => (
+            <Image 
+              key={index}
+              source={{ uri: imageUri }} 
+              style={styles.reviewImage}
+            />
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 
@@ -175,6 +226,29 @@ const ReviewsScreen = ({ route, navigation }) => {
             />
             {errors.comment && <Text style={styles.errorText}>{errors.comment.message}</Text>}
 
+            {/* Add Photos Section */}
+            <Text style={styles.label}>Add Photos (Optional)</Text>
+            <View style={styles.photosContainer}>
+              {reviewImages.map((imageUri, index) => (
+                <View key={index} style={styles.imagePreviewContainer}>
+                  <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+                  <TouchableOpacity
+                    style={styles.removeImageButton}
+                    onPress={() => removeImage(index)}
+                  >
+                    <Feather name="x" size={16} color={Colors.white} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              {reviewImages.length < 5 && (
+                <TouchableOpacity style={styles.addPhotoButton} onPress={pickImage}>
+                  <Feather name="camera" size={24} color={Colors.deepSaffron} />
+                  <Text style={styles.addPhotoText}>Add Photo</Text>
+                  <Text style={styles.photoLimitText}>({reviewImages.length}/5)</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
             <View style={styles.buttonRow}>
               <TouchableOpacity
                 style={styles.cancelButton}
@@ -182,6 +256,7 @@ const ReviewsScreen = ({ route, navigation }) => {
                   setShowForm(false);
                   reset();
                   setRating(0);
+                  setReviewImages([]);
                 }}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
@@ -389,6 +464,66 @@ const getStyles = (isDarkMode) => StyleSheet.create({
     fontSize: 14,
     color: isDarkMode ? Colors.darkSecondaryText : Colors.mediumGray,
     lineHeight: 20,
+  },
+  photosContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 20,
+    gap: 10,
+  },
+  imagePreviewContainer: {
+    position: 'relative',
+    width: 80,
+    height: 80,
+  },
+  imagePreview: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: Colors.lightGray,
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: Colors.coral,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addPhotoButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: Colors.deepSaffron,
+    backgroundColor: isDarkMode ? Colors.darkCard : Colors.lightGray,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addPhotoText: {
+    fontSize: 10,
+    color: Colors.deepSaffron,
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  photoLimitText: {
+    fontSize: 9,
+    color: Colors.mediumGray,
+    marginTop: 2,
+  },
+  reviewImagesContainer: {
+    marginTop: 10,
+  },
+  reviewImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    marginRight: 10,
+    backgroundColor: Colors.lightGray,
   },
   emptyContainer: {
     alignItems: 'center',

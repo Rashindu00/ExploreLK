@@ -13,13 +13,11 @@ import { loadAchievements } from '../store/slices/achievementsSlice';
 
 const AchievementsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { points, level, achievements, badges, isDarkMode } = useSelector((state) => ({
-    points: state.achievements.points,
-    level: state.achievements.level,
-    achievements: state.achievements.achievements,
-    badges: state.achievements.badges,
-    isDarkMode: state.theme.isDarkMode,
-  }));
+  const points = useSelector((state) => state.achievements.points);
+  const level = useSelector((state) => state.achievements.level);
+  const achievements = useSelector((state) => state.achievements.achievements);
+  const badges = useSelector((state) => state.achievements.badges);
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
 
   useEffect(() => {
     dispatch(loadAchievements());

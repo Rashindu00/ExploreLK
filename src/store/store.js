@@ -6,6 +6,7 @@ import themeReducer from './slices/themeSlice';
 import tripsReducer from './slices/tripsSlice';
 import reviewsReducer from './slices/reviewsSlice';
 import achievementsReducer from './slices/achievementsSlice';
+import transportReducer from './slices/transportSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,5 +17,6 @@ export const store = configureStore({
     trips: tripsReducer,
     reviews: reviewsReducer,
     achievements: achievementsReducer,
+    transport: transportReducer,
   },
 });

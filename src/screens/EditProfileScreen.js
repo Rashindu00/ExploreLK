@@ -18,10 +18,8 @@ import { updateUserProfile } from '../store/slices/authSlice';
 
 const EditProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { user, isDarkMode } = useSelector((state) => ({
-    user: state.auth.user,
-    isDarkMode: state.theme.isDarkMode,
-  }));
+  const user = useSelector((state) => state.auth.user);
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
 
   const [profileImage, setProfileImage] = useState(user?.image || null);
 
@@ -51,7 +49,7 @@ const EditProfileScreen = ({ navigation }) => {
 
       // Pick image
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.5,

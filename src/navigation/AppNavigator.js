@@ -17,10 +17,19 @@ import LanguageScreen from '../screens/LanguageScreen';
 import MyTripsScreen from '../screens/MyTripsScreen';
 import CreateTripScreen from '../screens/CreateTripScreen';
 import TripDetailsScreen from '../screens/TripDetailsScreen';
+import EditTripScreen from '../screens/EditTripScreen';
 import ReviewsScreen from '../screens/ReviewsScreen';
 import AchievementsScreen from '../screens/AchievementsScreen';
 import WeatherScreen from '../screens/WeatherScreen';
 import TravelGuidesScreen from '../screens/TravelGuidesScreen';
+import TransportScreen from '../screens/TransportScreen';
+import TrainRoutesScreen from '../screens/TrainRoutesScreen';
+import BusRoutesScreen from '../screens/BusRoutesScreen';
+import TaxiServicesScreen from '../screens/TaxiServicesScreen';
+import TukTukServicesScreen from '../screens/TukTukServicesScreen';
+import CarRentalsScreen from '../screens/CarRentalsScreen';
+import RoutePlannerScreen from '../screens/RoutePlannerScreen';
+import MyBookingsScreen from '../screens/MyBookingsScreen';
 import Colors from '../constants/colors';
 
 const Stack = createStackNavigator();
@@ -53,6 +62,19 @@ const FavoritesStack = () => (
   </Stack.Navigator>
 );
 
+const TransportStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="TransportMain" component={TransportScreen} />
+    <Stack.Screen name="TrainRoutes" component={TrainRoutesScreen} />
+    <Stack.Screen name="BusRoutes" component={BusRoutesScreen} />
+    <Stack.Screen name="TaxiServices" component={TaxiServicesScreen} />
+    <Stack.Screen name="TukTukServices" component={TukTukServicesScreen} />
+    <Stack.Screen name="CarRentals" component={CarRentalsScreen} />
+    <Stack.Screen name="RoutePlanner" component={RoutePlannerScreen} />
+    <Stack.Screen name="MyBookings" component={MyBookingsScreen} />
+  </Stack.Navigator>
+);
+
 const ProfileStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="ProfileMain" component={ProfileScreen} />
@@ -62,14 +84,13 @@ const ProfileStack = () => (
     <Stack.Screen name="MyTrips" component={MyTripsScreen} />
     <Stack.Screen name="CreateTrip" component={CreateTripScreen} />
     <Stack.Screen name="TripDetails" component={TripDetailsScreen} />
+    <Stack.Screen name="EditTrip" component={EditTripScreen} />
     <Stack.Screen name="Achievements" component={AchievementsScreen} />
   </Stack.Navigator>
 );
 
 const MainTabs = () => {
-  const { isDarkMode } = useSelector((state) => ({
-    isDarkMode: state.theme.isDarkMode,
-  }));
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
 
   return (
     <Tab.Navigator
@@ -80,6 +101,8 @@ const MainTabs = () => {
 
           if (route.name === 'Home') {
             iconName = 'home';
+          } else if (route.name === 'Transport') {
+            iconName = 'navigation';
           } else if (route.name === 'Favorites') {
             iconName = 'heart';
           } else if (route.name === 'Profile') {
@@ -104,6 +127,7 @@ const MainTabs = () => {
       })}
     >
       <Tab.Screen name="Home" component={HomeStack} />
+      <Tab.Screen name="Transport" component={TransportStack} />
       <Tab.Screen name="Favorites" component={FavoritesStack} />
       <Tab.Screen name="Profile" component={ProfileStack} />
     </Tab.Navigator>
@@ -111,9 +135,7 @@ const MainTabs = () => {
 };
 
 const AppNavigator = () => {
-  const { isAuthenticated } = useSelector((state) => ({
-    isAuthenticated: state.auth.isAuthenticated,
-  }));
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   return (
     <NavigationContainer>

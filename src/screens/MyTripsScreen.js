@@ -14,10 +14,8 @@ import { loadTrips, removeTripData } from '../store/slices/tripsSlice';
 
 const MyTripsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { trips, isDarkMode } = useSelector((state) => ({
-    trips: state.trips.trips,
-    isDarkMode: state.theme.isDarkMode,
-  }));
+  const trips = useSelector((state) => state.trips.trips);
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
 
   useEffect(() => {
     dispatch(loadTrips());

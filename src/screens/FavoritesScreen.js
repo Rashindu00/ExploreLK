@@ -12,11 +12,9 @@ import Colors from '../constants/colors';
 import DestinationCard from '../components/DestinationCard';
 
 const FavoritesScreen = ({ navigation }) => {
-  const { destinations, favorites, isDarkMode } = useSelector((state) => ({
-    destinations: state.destinations.destinations,
-    favorites: state.favorites.favorites,
-    isDarkMode: state.theme.isDarkMode,
-  }));
+  const destinations = useSelector((state) => state.destinations.destinations);
+  const favorites = useSelector((state) => state.favorites.favorites);
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
 
   const favoriteDestinations = destinations.filter((destination) =>
     favorites.includes(destination.id)

@@ -14,9 +14,7 @@ import Colors from './src/constants/colors';
 
 const AppContent = () => {
   const dispatch = useDispatch();
-  const { isDarkMode } = useSelector((state) => ({
-    isDarkMode: state.theme.isDarkMode,
-  }));
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
 
   useEffect(() => {
     // Load all persisted data on app start

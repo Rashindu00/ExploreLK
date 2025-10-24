@@ -17,10 +17,8 @@ import Colors from '../constants/colors';
 
 const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { user, isDarkMode } = useSelector((state) => ({
-    user: state.auth.user,
-    isDarkMode: state.theme.isDarkMode,
-  }));
+  const user = useSelector((state) => state.auth.user);
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
 
   const handleLogout = () => {
     Alert.alert(

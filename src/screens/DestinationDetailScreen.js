@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Linking,
   Dimensions,
+  FlatList,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Feather } from '@expo/vector-icons';
@@ -19,13 +20,17 @@ const { width } = Dimensions.get('window');
 const DestinationDetailScreen = ({ route, navigation }) => {
   const { destination } = route.params;
   const dispatch = useDispatch();
+  const flatListRef = useRef(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
-  const { favorites, isDarkMode } = useSelector((state) => ({
-    favorites: state.favorites.favorites,
-    isDarkMode: state.theme.isDarkMode,
-  }));
+  const favorites = useSelector((state) => state.favorites.favorites);
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
+  const allDestinations = useSelector((state) => state.destinations.destinations);
 
   const isFavorite = favorites.includes(destination.id);
+
+  // Use images array if available, otherwise fallback to single image
+  const images = destination.images || [destination.image];
 
   const handleToggleFavorite = () => {
     dispatch(toggleFavorite(destination.id));
@@ -40,6 +45,23 @@ const DestinationDetailScreen = ({ route, navigation }) => {
   const handleBookActivity = () => {
     // This would typically open a booking system or external app
     Linking.openURL('https://www.booking.com/searchresults.html?ss=' + encodeURIComponent(destination.title));
+  };
+
+  const handleNearbyPlaceClick = (placeName) => {
+    // Find the destination that matches the nearby place name
+    const nearbyDestination = allDestinations.find(dest => 
+      dest.name.toLowerCase().includes(placeName.toLowerCase()) ||
+      dest.title.toLowerCase().includes(placeName.toLowerCase())
+    );
+
+    if (nearbyDestination) {
+      // Navigate to the found destination
+      navigation.push('DestinationDetail', { destination: nearbyDestination });
+    } else {
+      // If not found in app, open Google search
+      const searchQuery = encodeURIComponent(`${placeName} Sri Lanka`);
+      Linking.openURL(`https://www.google.com/search?q=${searchQuery}`);
+    }
   };
 
   const renderRatingStars = (rating) => {
@@ -69,13 +91,37 @@ const DestinationDetailScreen = ({ route, navigation }) => {
     return stars;
   };
 
+  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+    if (viewableItems.length > 0) {
+      setCurrentImageIndex(viewableItems[0].index || 0);
+    }
+  }).current;
+
+  const viewabilityConfig = useRef({
+    itemVisiblePercentThreshold: 50,
+  }).current;
+
+  const renderImageItem = ({ item }) => (
+    <Image source={{ uri: item }} style={styles.image} />
+  );
+
   const styles = getStyles(isDarkMode);
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header Image */}
+      {/* Image Slider */}
       <View style={styles.imageContainer}>
-        <Image source={{ uri: destination.image }} style={styles.image} />
+        <FlatList
+          ref={flatListRef}
+          data={images}
+          renderItem={renderImageItem}
+          keyExtractor={(item, index) => index.toString()}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+        />
         <View style={styles.imageOverlay}>
           <TouchableOpacity
             style={styles.backButton}
@@ -95,6 +141,20 @@ const DestinationDetailScreen = ({ route, navigation }) => {
             />
           </TouchableOpacity>
         </View>
+        {/* Image Indicators */}
+        {images.length > 1 && (
+          <View style={styles.indicatorContainer}>
+            {images.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.indicator,
+                  index === currentImageIndex && styles.activeIndicator,
+                ]}
+              />
+            ))}
+          </View>
+        )}
       </View>
 
       {/* Content */}
@@ -110,9 +170,17 @@ const DestinationDetailScreen = ({ route, navigation }) => {
           </View>
         </View>
 
-        {/* Category Badge */}
-        <View style={styles.categoryBadge}>
-          <Text style={styles.categoryText}>{destination.category}</Text>
+        {/* District and Category */}
+        <View style={styles.badgesContainer}>
+          {destination.district && (
+            <View style={styles.districtBadge}>
+              <Feather name="map-pin" size={14} color={Colors.deepSaffron} />
+              <Text style={styles.districtBadgeText}>{destination.district} District</Text>
+            </View>
+          )}
+          <View style={styles.categoryBadge}>
+            <Text style={styles.categoryText}>{destination.category}</Text>
+          </View>
         </View>
 
         {/* Description */}
@@ -158,9 +226,14 @@ const DestinationDetailScreen = ({ route, navigation }) => {
           <Text style={styles.sectionTitle}>Nearby Attractions</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {destination.nearbyPlaces.map((place, index) => (
-              <View key={index} style={styles.nearbyCard}>
+              <TouchableOpacity 
+                key={index} 
+                style={styles.nearbyCard}
+                onPress={() => handleNearbyPlaceClick(place)}
+              >
+                <Feather name="map-pin" size={16} color={Colors.deepSaffron} />
                 <Text style={styles.nearbyText}>{place}</Text>
-              </View>
+              </TouchableOpacity>
             ))}
           </ScrollView>
         </View>
@@ -258,6 +331,25 @@ const getStyles = (isDarkMode) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  indicatorContainer: {
+    position: 'absolute',
+    bottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
+  indicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.5)',
+    marginHorizontal: 4,
+  },
+  activeIndicator: {
+    backgroundColor: Colors.white,
+    width: 24,
+  },
   favoriteButtonActive: {
     backgroundColor: 'rgba(255,107,107,0.2)',
   },
@@ -290,6 +382,28 @@ const getStyles = (isDarkMode) => StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: isDarkMode ? Colors.darkText : Colors.darkGray,
+  },
+  badgesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 15,
+    gap: 8,
+  },
+  districtBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: isDarkMode ? Colors.darkCard : Colors.lightGray,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: Colors.deepSaffron,
+  },
+  districtBadgeText: {
+    color: isDarkMode ? Colors.darkText : Colors.darkGray,
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: 4,
   },
   categoryBadge: {
     backgroundColor: Colors.deepSaffron,
@@ -345,15 +459,21 @@ const getStyles = (isDarkMode) => StyleSheet.create({
     marginBottom: 15,
   },
   nearbyCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: isDarkMode ? Colors.darkCard : Colors.lightGray,
     paddingHorizontal: 15,
     paddingVertical: 10,
     borderRadius: 20,
     marginRight: 10,
+    borderWidth: 1,
+    borderColor: isDarkMode ? Colors.darkCard : Colors.lightGray,
   },
   nearbyText: {
     fontSize: 14,
     color: isDarkMode ? Colors.darkText : Colors.darkGray,
+    marginLeft: 6,
+    fontWeight: '500',
   },
   featuresSection: {
     marginBottom: 25,

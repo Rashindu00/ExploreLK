@@ -12,9 +12,7 @@ import { Feather } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 
 const NotificationsScreen = ({ navigation }) => {
-  const { isDarkMode } = useSelector((state) => ({
-    isDarkMode: state.theme.isDarkMode,
-  }));
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
 
   const [notifications, setNotifications] = useState({
     pushNotifications: true,
