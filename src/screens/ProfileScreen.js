@@ -7,6 +7,7 @@ import {
   ScrollView,
   Alert,
   Switch,
+  Image,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Feather } from '@expo/vector-icons';
@@ -14,7 +15,7 @@ import { logoutUser } from '../store/slices/authSlice';
 import { toggleTheme } from '../store/slices/themeSlice';
 import Colors from '../constants/colors';
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { user, isDarkMode } = useSelector((state) => ({
     user: state.auth.user,
@@ -62,16 +63,21 @@ const ProfileScreen = () => {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.avatarContainer}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {user?.firstName?.charAt(0)?.toUpperCase() || 'U'}
-            </Text>
-          </View>
+          {user?.image ? (
+            <Image source={{ uri: user.image }} style={styles.avatar} />
+          ) : (
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {user?.firstName?.charAt(0)?.toUpperCase() || 'U'}
+              </Text>
+            </View>
+          )}
         </View>
         <Text style={styles.userName}>
           {user?.firstName} {user?.lastName}
         </Text>
         <Text style={styles.userEmail}>{user?.email || user?.username}</Text>
+        {user?.phone && <Text style={styles.userPhone}>{user.phone}</Text>}
       </View>
 
       {/* Options */}
@@ -98,27 +104,37 @@ const ProfileScreen = () => {
           icon="user"
           title="Edit Profile"
           subtitle="Update your personal information"
-          onPress={() => {
-            Alert.alert('Feature Coming Soon', 'Profile editing will be available in the next update.');
-          }}
+          onPress={() => navigation.navigate('EditProfile')}
         />
 
         <ProfileOption
           icon="bell"
           title="Notifications"
           subtitle="Manage your notification preferences"
-          onPress={() => {
-            Alert.alert('Feature Coming Soon', 'Notification settings will be available in the next update.');
-          }}
+          onPress={() => navigation.navigate('Notifications')}
         />
 
         <ProfileOption
           icon="globe"
           title="Language"
           subtitle="English"
-          onPress={() => {
-            Alert.alert('Feature Coming Soon', 'Language selection will be available in the next update.');
-          }}
+          onPress={() => navigation.navigate('Language')}
+        />
+
+        <Text style={styles.sectionTitle}>Travel</Text>
+        
+        <ProfileOption
+          icon="map"
+          title="My Trip Plans"
+          subtitle="View and manage your trips"
+          onPress={() => navigation.navigate('MyTrips')}
+        />
+
+        <ProfileOption
+          icon="award"
+          title="Achievements"
+          subtitle="View your badges and progress"
+          onPress={() => navigation.navigate('Achievements')}
         />
 
         <Text style={styles.sectionTitle}>Support</Text>
@@ -210,6 +226,11 @@ const getStyles = (isDarkMode) => StyleSheet.create({
   userEmail: {
     fontSize: 16,
     color: isDarkMode ? Colors.darkSecondaryText : Colors.mediumGray,
+  },
+  userPhone: {
+    fontSize: 14,
+    color: isDarkMode ? Colors.darkSecondaryText : Colors.mediumGray,
+    marginTop: 5,
   },
   optionsContainer: {
     paddingHorizontal: 20,

@@ -165,6 +165,44 @@ const DestinationDetailScreen = ({ route, navigation }) => {
           </ScrollView>
         </View>
 
+        {/* Quick Access Features */}
+        <View style={styles.featuresSection}>
+          <Text style={styles.sectionTitle}>Explore More</Text>
+          <View style={styles.featuresGrid}>
+            <TouchableOpacity
+              style={styles.featureCard}
+              onPress={() => navigation.navigate('Weather', { destination })}
+            >
+              <Feather name="cloud" size={24} color={Colors.oceanBlue} />
+              <Text style={styles.featureText}>Weather</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.featureCard}
+              onPress={() => navigation.navigate('Reviews', { destination })}
+            >
+              <Feather name="star" size={24} color={Colors.gold} />
+              <Text style={styles.featureText}>Reviews</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.featureCard}
+              onPress={() => navigation.navigate('TravelGuides', { destination })}
+            >
+              <Feather name="book" size={24} color={Colors.forestGreen} />
+              <Text style={styles.featureText}>Guides</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.featureCard}
+              onPress={handleOpenMap}
+            >
+              <Feather name="map-pin" size={24} color={Colors.coral} />
+              <Text style={styles.featureText}>Map</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
           <TouchableOpacity style={styles.mapButton} onPress={handleOpenMap}>
@@ -316,6 +354,28 @@ const getStyles = (isDarkMode) => StyleSheet.create({
   nearbyText: {
     fontSize: 14,
     color: isDarkMode ? Colors.darkText : Colors.darkGray,
+  },
+  featuresSection: {
+    marginBottom: 25,
+  },
+  featuresGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  featureCard: {
+    backgroundColor: isDarkMode ? Colors.darkCard : Colors.lightGray,
+    width: '48%',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  featureText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: isDarkMode ? Colors.darkText : Colors.darkGray,
+    marginTop: 8,
   },
   actionButtons: {
     flexDirection: 'row',

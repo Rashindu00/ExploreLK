@@ -36,10 +36,13 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    updateProfileSuccess: (state, action) => {
+      state.user = { ...state.user, ...action.payload };
+    },
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, clearError } = authSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, clearError, updateProfileSuccess } = authSlice.actions;
 
 // Async actions
 export const loginUser = (credentials) => async (dispatch) => {
@@ -110,6 +113,20 @@ export const loadUserFromStorage = () => async (dispatch) => {
     }
   } catch (error) {
     console.error('Load user error:', error);
+  }
+};
+
+export const updateUserProfile = (profileData) => async (dispatch, getState) => {
+  try {
+    const { auth } = getState();
+    const updatedUser = { ...auth.user, ...profileData };
+    
+    // Store updated user data in AsyncStorage
+    await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+    dispatch(updateProfileSuccess(profileData));
+  } catch (error) {
+    console.error('Update profile error:', error);
+    throw error;
   }
 };
 

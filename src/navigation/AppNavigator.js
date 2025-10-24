@@ -11,6 +11,16 @@ import HomeScreen from '../screens/HomeScreen';
 import DestinationDetailScreen from '../screens/DestinationDetailScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
+import LanguageScreen from '../screens/LanguageScreen';
+import MyTripsScreen from '../screens/MyTripsScreen';
+import CreateTripScreen from '../screens/CreateTripScreen';
+import TripDetailsScreen from '../screens/TripDetailsScreen';
+import ReviewsScreen from '../screens/ReviewsScreen';
+import AchievementsScreen from '../screens/AchievementsScreen';
+import WeatherScreen from '../screens/WeatherScreen';
+import TravelGuidesScreen from '../screens/TravelGuidesScreen';
 import Colors from '../constants/colors';
 
 const Stack = createStackNavigator();
@@ -27,6 +37,9 @@ const HomeStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="HomeMain" component={HomeScreen} />
     <Stack.Screen name="DestinationDetail" component={DestinationDetailScreen} />
+    <Stack.Screen name="Weather" component={WeatherScreen} />
+    <Stack.Screen name="Reviews" component={ReviewsScreen} />
+    <Stack.Screen name="TravelGuides" component={TravelGuidesScreen} />
   </Stack.Navigator>
 );
 
@@ -34,6 +47,22 @@ const FavoritesStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="FavoritesMain" component={FavoritesScreen} />
     <Stack.Screen name="DestinationDetail" component={DestinationDetailScreen} />
+    <Stack.Screen name="Weather" component={WeatherScreen} />
+    <Stack.Screen name="Reviews" component={ReviewsScreen} />
+    <Stack.Screen name="TravelGuides" component={TravelGuidesScreen} />
+  </Stack.Navigator>
+);
+
+const ProfileStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="ProfileMain" component={ProfileScreen} />
+    <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+    <Stack.Screen name="Notifications" component={NotificationsScreen} />
+    <Stack.Screen name="Language" component={LanguageScreen} />
+    <Stack.Screen name="MyTrips" component={MyTripsScreen} />
+    <Stack.Screen name="CreateTrip" component={CreateTripScreen} />
+    <Stack.Screen name="TripDetails" component={TripDetailsScreen} />
+    <Stack.Screen name="Achievements" component={AchievementsScreen} />
   </Stack.Navigator>
 );
 
@@ -76,7 +105,7 @@ const MainTabs = () => {
     >
       <Tab.Screen name="Home" component={HomeStack} />
       <Tab.Screen name="Favorites" component={FavoritesStack} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Profile" component={ProfileStack} />
     </Tab.Navigator>
   );
 };
