@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "ExploreLK - Tourist Guide",
+    "slug": "explorelk-tourist-guide",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "description": "Discover the Pearl of the Indian Ocean - Your ultimate Sri Lankan travel companion",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FF9933"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.explorelk.touristguide"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FF9933"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.explorelk.touristguide"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    }
+  }
+}
