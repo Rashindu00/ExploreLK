@@ -51,7 +51,7 @@ const LoginScreen = ({ navigation }) => {
       <View style={styles.header}>
         <Image
           source={{
-            uri: 'https://images.unsplash.com/photo-1566552881560-0be862a7c445?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80',
+            uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHKvFhwRA89iwRN_XZ4TPIVKj2rC92WF8N4A&s',
           }}
           style={styles.headerImage}
         />
@@ -133,11 +133,8 @@ const LoginScreen = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
 
-        <View style={styles.demoContainer}>
-          <Text style={styles.demoText}>Demo Credentials:</Text>
-          <Text style={styles.demoCredentials}>Username: emilys</Text>
-          <Text style={styles.demoCredentials}>Password: emilyspass</Text>
-        </View>
+      
+        
       </View>
     </ScrollView>
   );

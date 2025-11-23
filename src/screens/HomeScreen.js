@@ -92,8 +92,41 @@ const HomeScreen = ({ navigation }) => {
 
   const styles = getStyles(isDarkMode);
 
+  const renderDestinationGrid = () => {
+    if (loading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading destinations...</Text>
+        </View>
+      );
+    }
+
+    const rows = [];
+    for (let i = 0; i < filteredDestinations.length; i += 2) {
+      const row = [filteredDestinations[i]];
+      if (i + 1 < filteredDestinations.length) {
+        row.push(filteredDestinations[i + 1]);
+      }
+      rows.push(row);
+    }
+
+    return rows.map((row, rowIndex) => (
+      <View key={rowIndex} style={styles.destinationRow}>
+        {row.map((destination) => (
+          <View key={destination.id} style={styles.destinationItemWrapper}>
+            {renderDestinationItem({ item: destination })}
+          </View>
+        ))}
+      </View>
+    ));
+  };
+
   return (
-    <View style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContent}
+    >
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
@@ -128,27 +161,61 @@ const HomeScreen = ({ navigation }) => {
 
       {/* Categories */}
       <View style={styles.categoriesContainer}>
-        <FlatList
-          data={categories}
-          renderItem={renderCategoryItem}
-          keyExtractor={(item) => item}
+        <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesList}
-        />
+        >
+          {categories.map((category) => (
+            <TouchableOpacity
+              key={category}
+              style={[
+                styles.categoryButton,
+                selectedCategory === category && styles.selectedCategoryButton,
+              ]}
+              onPress={() => dispatch(setSelectedCategory(category))}
+            >
+              <Text
+                style={[
+                  styles.categoryText,
+                  selectedCategory === category && styles.selectedCategoryText,
+                ]}
+              >
+                {category}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
 
       {/* Districts */}
       <View style={styles.districtsContainer}>
         <Text style={styles.sectionLabel}>Filter by District:</Text>
-        <FlatList
-          data={districts}
-          renderItem={renderDistrictItem}
-          keyExtractor={(item) => item}
+        <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.districtsList}
-        />
+        >
+          {districts.map((district) => (
+            <TouchableOpacity
+              key={district}
+              style={[
+                styles.districtButton,
+                selectedDistrict === district && styles.selectedDistrictButton,
+              ]}
+              onPress={() => dispatch(setSelectedDistrict(district))}
+            >
+              <Text
+                style={[
+                  styles.districtText,
+                  selectedDistrict === district && styles.selectedDistrictText,
+                ]}
+              >
+                {district}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
 
       {/* Destinations List */}
@@ -157,23 +224,11 @@ const HomeScreen = ({ navigation }) => {
           {selectedCategory === 'All' ? 'All Destinations' : selectedCategory}
         </Text>
         
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Loading destinations...</Text>
-          </View>
-        ) : (
-          <FlatList
-            data={filteredDestinations}
-            renderItem={renderDestinationItem}
-            keyExtractor={(item) => item.id.toString()}
-            numColumns={2}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.destinationsList}
-            columnWrapperStyle={styles.destinationRow}
-          />
-        )}
+        <View style={styles.destinationsList}>
+          {renderDestinationGrid()}
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -181,6 +236,9 @@ const getStyles = (isDarkMode) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: isDarkMode ? Colors.darkBackground : Colors.white,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   header: {
     paddingTop: 50,
@@ -274,27 +332,6 @@ const getStyles = (isDarkMode) => StyleSheet.create({
   districtsList: {
     paddingHorizontal: 20,
   },
-  districtButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: isDarkMode ? Colors.darkBackground : Colors.lightGray,
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: isDarkMode ? Colors.darkCard : Colors.lightGray,
-  },
-  selectedDistrictButton: {
-    backgroundColor: Colors.goldenYellow,
-    borderColor: Colors.goldenYellow,
-  },
-  districtButtonText: {
-    fontSize: 13,
-    color: isDarkMode ? Colors.darkSecondaryText : Colors.mediumGray,
-  },
-  selectedDistrictButtonText: {
-    color: Colors.darkGray,
-    fontWeight: '600',
-  },
   destinationsContainer: {
     flex: 1,
     paddingHorizontal: 20,
@@ -318,7 +355,41 @@ const getStyles = (isDarkMode) => StyleSheet.create({
     paddingBottom: 20,
   },
   destinationRow: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  destinationItemWrapper: {
+    flex: 0.48, // Takes roughly half width with some spacing
+  },
+  categoryText: {
+    fontSize: 14,
+    color: isDarkMode ? Colors.darkText : Colors.darkGray,
+  },
+  selectedCategoryText: {
+    color: Colors.white,
+    fontWeight: 'bold',
+  },
+  districtButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: isDarkMode ? Colors.darkCard : Colors.lightGray,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: isDarkMode ? Colors.darkBorder : Colors.lightGray,
+  },
+  selectedDistrictButton: {
+    backgroundColor: isDarkMode ? Colors.darkBackground : Colors.white,
+    borderColor: isDarkMode ? Colors.darkText : Colors.darkGray,
+  },
+  districtText: {
+    fontSize: 14,
+    color: isDarkMode ? Colors.darkSecondaryText : Colors.mediumGray,
+  },
+  selectedDistrictText: {
+    color: isDarkMode ? Colors.darkText : Colors.darkGray,
+    fontWeight: '600',
   },
 });
 
