@@ -2,7 +2,7 @@
 
 A comprehensive React Native mobile application for exploring Sri Lankan tourist destinations, built with Expo.
 
-## 🌟 Features
+##  Features
 
 ### Core Features
 - **User Authentication**: Secure login/registration with form validation
@@ -35,7 +35,7 @@ A comprehensive React Native mobile application for exploring Sri Lankan tourist
 - Cultural Sites
 - Food & Restaurants
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 - **Framework**: React Native with Expo CLI
 - **State Management**: Redux Toolkit
@@ -46,7 +46,7 @@ A comprehensive React Native mobile application for exploring Sri Lankan tourist
 - **API Integration**: DummyJSON for authentication
 - **Maps**: React Native Maps integration
 
-## 🎨 Design System
+##  Design System
 
 ### Primary Colors
 - **Deep Saffron**: #FF9933 (warm, inviting - represents Sri Lankan sunsets)
@@ -63,7 +63,7 @@ A comprehensive React Native mobile application for exploring Sri Lankan tourist
 - **Dark Gray**: #333333 (text)
 - **Medium Gray**: #757575 (secondary text)
 
-## 📱 Screens
+##  Screens
 
 1. **Authentication Flow**
    - Login Screen with demo credentials
@@ -80,7 +80,7 @@ A comprehensive React Native mobile application for exploring Sri Lankan tourist
    - Stack Navigation for details
    - Smooth transitions
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Node.js (v16 or higher)
@@ -113,42 +113,7 @@ npm run ios      # For iOS
 npm run web      # For web browser
 ```
 
-## 🔐 Demo Credentials
 
-For testing the app, use these demo credentials:
-- **Username**: emilys
-- **Password**: emilyspass
-
-## 📦 Project Structure
-
-```
-ExploreLK/
-├── src/
-│   ├── components/          # Reusable components
-│   │   └── DestinationCard.js
-│   ├── constants/           # Color schemes and constants
-│   │   └── colors.js
-│   ├── navigation/          # Navigation configuration
-│   │   └── AppNavigator.js
-│   ├── screens/            # Screen components
-│   │   ├── LoginScreen.js
-│   │   ├── RegisterScreen.js
-│   │   ├── HomeScreen.js
-│   │   ├── DestinationDetailScreen.js
-│   │   ├── FavoritesScreen.js
-│   │   └── ProfileScreen.js
-│   ├── store/              # Redux store and slices
-│   │   ├── store.js
-│   │   └── slices/
-│   │       ├── authSlice.js
-│   │       ├── destinationsSlice.js
-│   │       ├── favoritesSlice.js
-│   │       └── themeSlice.js
-│   └── utils/              # Utility functions
-│       └── validations.js
-├── App.js                  # Main app component
-└── package.json
-```
 
 ## 🔧 Key Features Implementation
 
@@ -179,25 +144,15 @@ ExploreLK/
 - Consistent color scheme
 - Loading states and error handling
 
-## 🌐 API Integration
+## API Integration
 
 The app uses mock data for destinations and integrates with:
 - DummyJSON API for user authentication
 - Google Maps for location services
 - Booking.com for activity bookings (external links)
 
-## 📋 Assignment Requirements Compliance
 
-✅ **User Authentication**: Complete login/registration flow with form validation  
-✅ **Navigation Structure**: React Navigation with stack and bottom tab navigation  
-✅ **Home Screen**: Dynamic destination list with API integration  
-✅ **State Management**: Redux Toolkit implementation  
-✅ **Favorites**: Persistent favorites with AsyncStorage  
-✅ **Styling**: Consistent UI with Feather Icons  
-✅ **Responsive Design**: Works on various screen sizes  
-✅ **Dark Mode**: Theme toggle functionality (Bonus Feature)  
-
-## 🔄 Best Practices
+##  Best Practices
 
 - **Modular Code Structure**: Feature-based organization
 - **Reusable Components**: DRY principle implementation
@@ -206,7 +161,7 @@ The app uses mock data for destinations and integrates with:
 - **Security**: Secure authentication state management
 - **Accessibility**: Proper labeling and navigation
 
-## 🚀 Future Enhancements
+##  Future Enhancements
 
 - Offline functionality
 - Push notifications
@@ -216,7 +171,7 @@ The app uses mock data for destinations and integrates with:
 - User-generated content (reviews, photos)
 - Multi-language support
 
-## 📄 License
+##  License
 
 This project is created for educational purposes as part of the IN3210 Mobile Applications Development Assignment.
 
