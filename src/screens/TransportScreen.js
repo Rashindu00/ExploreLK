@@ -101,32 +101,52 @@ const TransportScreen = ({ navigation }) => {
 
         {/* Search Section */}
         <View style={styles.searchSection}>
-          <View style={styles.searchRow}>
-            <View style={styles.searchInputContainer}>
-              <Feather name="map-pin" size={18} color={Colors.forestGreen} />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="From"
-                placeholderTextColor={Colors.mediumGray}
-                value={searchFrom}
-                onChangeText={setSearchFrom}
-              />
-            </View>
-            <TouchableOpacity style={styles.swapButton}>
-              <Feather name="repeat" size={20} color={Colors.deepSaffron} />
+          <View style={styles.searchInputContainer}>
+            <Feather name="map-pin" size={18} color={Colors.forestGreen} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="From (e.g., Colombo)"
+              placeholderTextColor={Colors.mediumGray}
+              value={searchFrom}
+              onChangeText={setSearchFrom}
+            />
+          </View>
+          
+          <View style={styles.swapButtonContainer}>
+            <TouchableOpacity 
+              style={styles.swapButton}
+              onPress={() => {
+                const temp = searchFrom;
+                setSearchFrom(searchTo);
+                setSearchTo(temp);
+              }}
+            >
+              <Feather name="repeat" size={24} color="#FFF" />
             </TouchableOpacity>
           </View>
+
           <View style={styles.searchInputContainer}>
             <Feather name="navigation" size={18} color={Colors.coral} />
             <TextInput
               style={styles.searchInput}
-              placeholder="To"
+              placeholder="To (e.g., Kandy)"
               placeholderTextColor={Colors.mediumGray}
               value={searchTo}
               onChangeText={setSearchTo}
             />
           </View>
-          <TouchableOpacity style={styles.searchButton}>
+          
+          <TouchableOpacity 
+            style={styles.searchButton}
+            onPress={() => {
+              if (searchFrom && searchTo) {
+                navigation.navigate('RoutePlanner', { 
+                  from: searchFrom, 
+                  to: searchTo 
+                });
+              }
+            }}
+          >
             <Feather name="search" size={20} color="#FFF" />
             <Text style={styles.searchButtonText}>Search Routes</Text>
           </TouchableOpacity>
@@ -262,20 +282,14 @@ const getStyles = (isDarkMode) =>
     searchSection: {
       marginTop: 8,
     },
-    searchRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 12,
-    },
     searchInputContainer: {
-      flex: 1,
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: isDarkMode ? Colors.darkBackground : Colors.lightBackground,
       borderRadius: 12,
       paddingHorizontal: 16,
       paddingVertical: 14,
-      marginRight: 12,
+      marginBottom: 12,
     },
     searchInput: {
       flex: 1,
@@ -283,13 +297,22 @@ const getStyles = (isDarkMode) =>
       color: isDarkMode ? Colors.darkText : Colors.darkGray,
       marginLeft: 12,
     },
+    swapButtonContainer: {
+      alignItems: 'center',
+      marginBottom: 12,
+    },
     swapButton: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: isDarkMode ? Colors.darkBackground : Colors.lightBackground,
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: Colors.deepSaffron,
       alignItems: 'center',
       justifyContent: 'center',
+      elevation: 3,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 3,
     },
     searchButton: {
       flexDirection: 'row',

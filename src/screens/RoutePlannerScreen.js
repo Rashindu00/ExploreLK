@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,16 +6,127 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
+  Linking,
+  Platform,
+  Alert,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import { Feather } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 
-const RoutePlannerScreen = ({ navigation }) => {
+// Platform-specific imports
+let MapView, Marker, Polyline, Location;
+
+// Only import maps on native platforms
+const isNative = Platform.OS === 'ios' || Platform.OS === 'android';
+
+if (isNative) {
+  try {
+    const RNMaps = require('react-native-maps');
+    MapView = RNMaps.default || RNMaps;
+    Marker = RNMaps.Marker;
+    Polyline = RNMaps.Polyline;
+    Location = require('expo-location');
+  } catch (e) {
+    console.log('Maps not available on this platform');
+  }
+}
+
+const RoutePlannerScreen = ({ navigation, route }) => {
   const isDarkMode = useSelector((state) => state.theme.isDarkMode);
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
+  const [from, setFrom] = useState(route.params?.from || '');
+  const [to, setTo] = useState(route.params?.to || '');
   const [showResults, setShowResults] = useState(false);
+  const [region, setRegion] = useState(null);
+
+  // Sri Lankan cities coordinates
+  const cityCoordinates = {
+    'Colombo': { latitude: 6.9271, longitude: 79.8612 },
+    'Kandy': { latitude: 7.2906, longitude: 80.6337 },
+    'Galle': { latitude: 6.0535, longitude: 80.2210 },
+    'Ella': { latitude: 6.8667, longitude: 81.0467 },
+    'Anuradhapura': { latitude: 8.3114, longitude: 80.4037 },
+    'Jaffna': { latitude: 9.6615, longitude: 80.0255 },
+    'Trincomalee': { latitude: 8.5874, longitude: 81.2152 },
+    'Nuwara Eliya': { latitude: 6.9497, longitude: 80.7891 },
+    'Mirissa': { latitude: 5.9470, longitude: 80.4560 },
+    'Arugam Bay': { latitude: 6.8417, longitude: 81.8364 },
+  };
+
+  useEffect(() => {
+    // Auto-search if params are provided
+    if (route.params?.from && route.params?.to) {
+      setShowResults(true);
+    }
+  }, [route.params]);
+
+  useEffect(() => {
+    // Skip location request on web
+    if (!isNative) {
+      setRegion({
+        latitude: 7.8731,
+        longitude: 80.7718,
+        latitudeDelta: 2,
+        longitudeDelta: 2,
+      });
+      return;
+    }
+
+    (async () => {
+      if (!Location) return;
+      
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Location permission is needed to show the map.');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setRegion({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 2,
+        longitudeDelta: 2,
+      });
+    })();
+  }, []);
+
+  const openInGoogleMaps = () => {
+    const fromCoords = cityCoordinates[from];
+    const toCoords = cityCoordinates[to];
+    
+    if (!fromCoords || !toCoords) {
+      Alert.alert('Error', 'Please select valid cities from the list');
+      return;
+    }
+
+    const url = Platform.select({
+      ios: `maps://app?saddr=${fromCoords.latitude},${fromCoords.longitude}&daddr=${toCoords.latitude},${toCoords.longitude}`,
+      android: `google.navigation:q=${toCoords.latitude},${toCoords.longitude}&origin=${fromCoords.latitude},${fromCoords.longitude}`,
+    });
+
+    Linking.canOpenURL(url).then((supported) => {
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        // Fallback to web
+        const webUrl = `https://www.google.com/maps/dir/?api=1&origin=${fromCoords.latitude},${fromCoords.longitude}&destination=${toCoords.latitude},${toCoords.longitude}&travelmode=driving`;
+        Linking.openURL(webUrl);
+      }
+    });
+  };
+
+  const getRouteCoordinates = () => {
+    const fromCoords = cityCoordinates[from];
+    const toCoords = cityCoordinates[to];
+    
+    if (!fromCoords || !toCoords) return [];
+    
+    return [
+      { latitude: fromCoords.latitude, longitude: fromCoords.longitude },
+      { latitude: toCoords.latitude, longitude: toCoords.longitude },
+    ];
+  };
 
   const popularCities = [
     'Colombo', 'Kandy', 'Galle', 'Ella', 'Anuradhapura',
@@ -107,7 +218,55 @@ const RoutePlannerScreen = ({ navigation }) => {
         {/* Results */}
         {showResults && from && to && (
           <View style={styles.resultsSection}>
-            <Text style={styles.resultsTitle}>Route: {from} → {to}</Text>
+            <View style={styles.routeHeader}>
+              <Text style={styles.resultsTitle}>Route: {from} → {to}</Text>
+              <TouchableOpacity 
+                style={styles.navigateButton}
+                onPress={openInGoogleMaps}
+              >
+                <Feather name="navigation" size={18} color="#FFF" />
+                <Text style={styles.navigateButtonText}>Navigate</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Map View - Only on Native Platforms */}
+            {isNative && MapView && region && cityCoordinates[from] && cityCoordinates[to] && (
+              <View style={styles.mapContainer}>
+                <MapView
+                  style={styles.map}
+                  initialRegion={{
+                    latitude: (cityCoordinates[from].latitude + cityCoordinates[to].latitude) / 2,
+                    longitude: (cityCoordinates[from].longitude + cityCoordinates[to].longitude) / 2,
+                    latitudeDelta: Math.abs(cityCoordinates[from].latitude - cityCoordinates[to].latitude) * 1.5,
+                    longitudeDelta: Math.abs(cityCoordinates[from].longitude - cityCoordinates[to].longitude) * 1.5,
+                  }}
+                >
+                  {/* From Marker */}
+                  <Marker
+                    coordinate={cityCoordinates[from]}
+                    title={from}
+                    pinColor={Colors.forestGreen}
+                  />
+                  
+                  {/* To Marker */}
+                  <Marker
+                    coordinate={cityCoordinates[to]}
+                    title={to}
+                    pinColor={Colors.coral}
+                  />
+                  
+                  {/* Route Line */}
+                  <Polyline
+                    coordinates={getRouteCoordinates()}
+                    strokeColor={Colors.deepSaffron}
+                    strokeWidth={3}
+                  />
+                </MapView>
+              </View>
+            )}
+            
+            {/* Transport Options */}
+            <Text style={styles.optionsTitle}>Transport Options</Text>
             
             {/* Train Option */}
             <View style={styles.optionCard}>
@@ -327,11 +486,53 @@ const getStyles = (isDarkMode) =>
     resultsSection: {
       padding: 20,
     },
+    routeHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
     resultsTitle: {
       fontSize: 18,
       fontWeight: 'bold',
       color: isDarkMode ? Colors.darkText : Colors.darkGray,
-      marginBottom: 16,
+      flex: 1,
+    },
+    navigateButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: Colors.oceanBlue,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderRadius: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 3,
+      elevation: 3,
+    },
+    navigateButtonText: {
+      fontSize: 14,
+      fontWeight: 'bold',
+      color: '#FFF',
+      marginLeft: 6,
+    },
+    mapContainer: {
+      height: 250,
+      borderRadius: 16,
+      overflow: 'hidden',
+      marginBottom: 20,
+      borderWidth: 2,
+      borderColor: isDarkMode ? Colors.darkBorder : Colors.lightGray,
+    },
+    map: {
+      flex: 1,
+    },
+    optionsTitle: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: isDarkMode ? Colors.darkText : Colors.darkGray,
+      marginBottom: 12,
     },
     optionCard: {
       backgroundColor: isDarkMode ? Colors.darkCard : '#FFF',

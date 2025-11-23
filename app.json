@@ -18,7 +18,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.explorelk.touristguide"
+      "bundleIdentifier": "com.explorelk.touristguide",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to show you nearby places and help with navigation."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -26,11 +29,14 @@
         "backgroundColor": "#FF9933"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.explorelk.touristguide"
+      "package": "com.explorelk.touristguide",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
     },
     "web": {
-      "favicon": "./assets/favicon.png",
-      "bundler": "metro"
+      "favicon": "./assets/favicon.png"
     }
   }
 }
